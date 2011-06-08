@@ -26,10 +26,12 @@ $SERVICE_STATUS_BY = array(
                            STATE_UNKNOWN  => "Unknown",
                            );
 
+$BASE_URL = $_SERVER["SCRIPT_NAME"];
+
 $status = parse_status_file($STATUS_FILE);
 $global_stats = calc_global_stats($status);
 
-switch ($_REQUEST["page"]) { # fixme
+switch ($_REQUEST["page"]) {
 case NULL:
     view_main($global_stats, $status);
     break;
@@ -43,22 +45,17 @@ default:
     trigger_error("unknown page: ".htmlspecialchars($_GET["page"], ENT_QUOTES), E_USER_NOTICE);
 }
 
-?>
-
-<?php
-function view_main($global_stats, $status) {
-    global $STATUS_FILE, $COMMAND_FILE;
-    global $HOST_STATUS_BY, $SERVICE_STATUS_BY;
+function begin_html() {
+    global $BASE_URL;
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title>jQuery mobile</title>
+<title>Teeny Nagios</title>
 <link rel="apple-touch-icon" href="nagios.png" />
 <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.css" />
 <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
-<!-- my.js is here -->
 <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.js"></script>
 <style>
 body {
@@ -74,54 +71,147 @@ ul.overview li {
     font-size: 12px;
 }
 div.rounded {
-  -webkit-border-radius: 4px;
-  -webkit-box-shadow: rgba(0,0,0,.3) 1px 1px 3px;
-  background:   #ccc;
-  margin: 5px 10px 10px;
-  padding: 6px 10px;
-  text-shadow: none;
+    -webkit-border-radius: 4px;
+    -webkit-box-shadow: rgba(0,0,0,.3) 1px 1px 3px;
+    background:   #ccc;
+    margin: 5px 10px 10px;
+    padding: 6px 10px;
+    text-shadow: none;
 }
 div.rounded ul, div.rounded dl {
-  color: #333;
-  border: 0;
-  font: normal 12px Helvetica;
-  margin:  0;
-  padding: 0;
+    color: #333;
+    border: 0;
+    font: normal 12px Helvetica;
+    margin:  0;
+    padding: 0;
 }
 
 div.rounded ul li, div.rounded dl dt, div.rounded dl dd {
-  color: #333;
-  border: 0;
-  margin:  0;
-  padding: 0;
-  background: transparent;
+    color: #333;
+    border: 0;
+    margin:  0;
+    padding: 0;
+    background: transparent;
 }
 
 div.rounded dl dt {
-  font-size: 120%;
-  font-weight: bold;
+    font-size: 120%;
+    font-weight: bold;
+}
+
+div.result {
+    background:   #ccc;
+    text-align: center;
+    font-weight: bold;
+    line-height: 3em;
+    color: #333;
+    text-shadow: none;
+    margin: 0 -15px;
 }
 
 .critical {
-  background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(transparent), to(#f00)) !important;
+    background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(transparent), to(#f00)) !important;
 }
 
 .warning {
-  background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(transparent), to(#ff0)) !important;
+    background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(transparent), to(#ff0)) !important;
+}
+
+.downtime .ui-btn-text a {
+    color: #888;
+    text-shadow: none;
 }
 
 .ui-field-contain {
-  border-bottom-width: 0;
-  padding: 0.5em 0;
+    border-bottom-width: 0;
+    padding: 0.5em 0;
 }
+
 </style>
 
 <script>
+$(document).ready(function(){
+    var TN_DEBUG = true;
+    var debug = TN_DEBUG ? console : { log: function(){}, debug: function(){}, warn: function(){}, info: function(){} };
+
+    $('.submitDowntimeButton').live('click', function(e){
+        e.stopPropagation();
+        var that = $(this);
+
+        var dt_id = that.data("dt_id");
+        var form_id = '#dt_' + dt_id + '_form';
+        var form = $(form_id);
+        var result_id = '#dt_' + dt_id + '_result';
+        debug.log("dt_id: "+dt_id);
+        debug.log("form_id: "+form_id);
+        debug.log("result_id: "+result_id);
+
+        var dt_host     = form.data("dt_host");
+        var dt_comment ;
+        var dt_end_date;
+        var dt_end_time;
+
+
+        var dt_service  = form.data("dt_service");
+        var dt_comment
+        var dt_comment  = form.find('#dt_'+dt_id+'_comment').val();
+        var dt_end_date = form.find('#dt_'+dt_id+'_end_date option:selected').val();
+        var dt_end_time = form.find('#dt_'+dt_id+'_end_time option:selected').val();
+        debug.log("host: "+dt_host+", service: "+dt_service+", comment: "+dt_comment+", end_date: "+dt_end_date+", end_time: "+dt_end_time);
+
+        that.addClass('ui-disabled')
+            .removeClass('ui-btn-active');
+        $(result_id).html('<p>Processing...</p>');
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            url: '<?php echo $BASE_URL ?>',
+            dataTYpe: 'json',
+            data: {
+                host     : dt_host,
+                service  : dt_service,
+                comment  : dt_comment,
+                end_date : dt_end_date,
+                end_time : dt_end_time,
+                page     : 'schedule_downtime'
+            },
+            success: function(ret) {
+                $(result_id).html('<p>Done</p>');
+                that.removeClass('ui-disabled');
+            },
+            error: function(xhr) {
+                $(result_id).html('<p>Error ('+xhr.code+')</p>');
+                that.removeClass('ui-disabled');
+            }
+        });
+
+        return false;
+    });
+});
+
+
 </script>
 
 </head>
 <body>
+<?php
+}
 
+function end_html() {
+?>
+</body>
+</html>
+<?php
+}
+?>
+
+<?php
+function view_main($global_stats, $status) {
+    global $STATUS_FILE, $COMMAND_FILE;
+    global $HOST_STATUS_BY, $SERVICE_STATUS_BY;
+    global $BASE_URL;
+    begin_html();
+?>
 <!-- home ============================================================ -->
 <div data-role="page" id="home" data-theme="a">
   <div data-role="header" data-backbtn="false">
@@ -159,7 +249,11 @@ div.rounded dl dt {
   </div>
 
   <div data-role="content">
-    fixme
+    <h2>Teeny Nagios</h2>
+    <p>Teeny web interface for Nagios with smartphone(iPhone, Android)</p>
+    <p>
+    <a href="https://github.com/hirose31/teeny-nagios" rel="external">https://github.com/hirose31/teeny-nagios</a>
+    </p>
   </div>
 </div>
 
@@ -201,8 +295,11 @@ foreach ($status["hosts"] as $host_id => $host_status) {
 <?php
     if (isset($host_status["services"])) {
         foreach ($host_status["services"] as $service_id => $service_status) {
-# fixme stateでいろづけ
-            print("    <li><a href=\"#${host_id}_${service_id}\">".$service_status["service_description"]."</a></li>\n");
+            $class = class_by_state( service_state_of(array($service_id => $service_status)) );
+            if ($service_status["scheduled_downtime_depth"] > 0) {
+                $class = " downtime";
+            }
+            print("    <li class=\"$class\"><a href=\"#${host_id}_${service_id}\">".$service_status["service_description"]."</a></li>\n");
         }
     }
 ?>
@@ -221,11 +318,14 @@ foreach ($status["hosts"] as $host_id => $host_status) {
         <dd><?php echo date("c",$host_status["last_update"]) ?>
         <dt>Notifications
         <dd><?php echo $host_status["notifications_enabled"] == 1 ? "Enabled" : "Disabled" ?>
-      </div>
+        <dt>Scheduled Downtime
+        <dd><?php echo $host_status["scheduled_downtime_depth"] > 0 ? "Yes" : "No" ?>
+      </dl>
+    </div>
 
     <h2>Commands</h2>
     <ul data-role="listview" data-inset="true" data-theme="a">
-      <li><a href="/downtime?host_id=<?php echo $host_id ?>" data-transition="flip">Schedule downtime</a></li>
+      <li><a href="<?php echo $BASE_URL ?>?page=downtime&host_id=<?php echo $host_id ?>" data-transition="flip">Schedule downtime</a></li>
     </ul>
 
   </div>
@@ -252,7 +352,7 @@ foreach ($status["hosts"] as $host_id => $host_status) {
     <div class="information rounded">
       <dl>
         <dt>Status
-        <dd class="<?php echo class_by_state($service_status["current_state"] > 0 ? STATE_CRITICAL : STATE_OK) ?>"><?php echo $SERVICE_STATUS_BY[ $service_status["current_state"] ] ?> (for <?php echo stringize_duration(get_time_breakdown($status, $service_status)) ?>)
+        <dd class="<?php echo class_by_state($service_status["current_state"]) ?>"><?php echo $SERVICE_STATUS_BY[ $service_status["current_state"] ] ?> (for <?php echo stringize_duration(get_time_breakdown($status, $service_status)) ?>)
         <dt>Status Information
         <dd><?php echo $service_status["plugin_output"] ?>
         <dt>Last Check Time
@@ -260,13 +360,17 @@ foreach ($status["hosts"] as $host_id => $host_status) {
         <dt>Last Update
         <dd><?php echo date("c",$service_status["last_update"]) ?>
         <dt>Notifications
-        <dd class="<?php echo class_by_state($service_status["notifications_enabled"] == 1 ? STATE_OK : STATE_CRITICAL) ?>><?php echo $service_status["notifications_enabled"] == 1 ? "Enabled" : "Disabled" ?>
-      </div>
+        <dd class="<?php echo class_by_state($service_status["notifications_enabled"] == 1 ? STATE_OK : STATE_CRITICAL) ?>"><?php echo $service_status["notifications_enabled"] == 1 ? "Enabled" : "Disabled" ?>
+        <dt>Scheduled Downtime
+        <dd><?php echo $service_status["scheduled_downtime_depth"] > 0 ? "Yes" : "No" ?>
+      </dl>
+    </div>
 
     <h2>Commands</h2>
     <ul data-role="listview" data-inset="true" data-theme="a">
-      <li><a href="/downtime?host_id=<?php echo $host_id ?>&service_id=<?php echo $service_id ?>" data-transition="flip">Schedule downtime</a></li>
+      <li><a href="<?php echo $BASE_URL ?>?page=downtime&host_id=<?php echo $host_id ?>&service_id=<?php echo $service_id ?>" data-transition="flip">Schedule downtime</a></li>
     </ul>
+
   </div>
 </div>
 <?php
@@ -275,9 +379,8 @@ foreach ($status["hosts"] as $host_id => $host_status) {
 }
 ?>
 
-</body>
-</html>
 <?php
+end_html();
 }
 ?>
 
@@ -285,62 +388,64 @@ foreach ($status["hosts"] as $host_id => $host_status) {
 function view_downtime($global_stats, $status) {
     global $STATUS_FILE, $COMMAND_FILE;
     global $HOST_STATUS_BY, $SERVICE_STATUS_BY;
+    global $BASE_URL;
     $host_id     = $_GET["host_id"];
     $host_status = $status["hosts"][$host_id];
     $host        = $host_status["host_name"];
     $service_id = $_GET["service_id"];
     $service_status;
     if (! isset($service_id)) {
-        $id_back    = $host_id;
-        $id         = $host_id;
-        $title_back = $host;
+        $id             = $host_id;
     } else {
-        $id_back        = "${host_id}_${service_id}";
         $id             = "${host_id}_${service_id}";
         $service_status = $host_status["services"][$service_id];
-        $title_back     = $service_status["service_description"];
     }
+    begin_html();
 ?>
-<div id="dt_<?php echo $id_back?>">
+<div data-role="page" id="dt_<?php echo $id ?>" data-theme="a">
 
-  <div class="toolbar">
+  <div data-role="header">
     <h1>downtime</h1>
-    <a class="back" href="#<?php echo $id_back ?>"><?php echo $title_back ?></a>
+    <a href="<?php echo $BASE_URL ?>" data-icon="home" data-iconpos="notext"  data-direction="reverse" class="ui-btn-right">Home</a>
   </div>
 
-<!-- fixme dt で点線引く -->
-
-  <h2>by Service</h2> <!-- or by Host fixme -->
-  <div class="rounded">
-    <dl>
-      <dt>Host
-      <dd>
+  <div data-role="content">
+    <h2>Information</h2>
+    <div class="information rounded">
+      <dl>
+        <dt>Host</dt>
+        <dd><?php echo $host ?></dd>
 <?php
-    echo $host;
     if(isset($service_id)) {
         print "
-      <dt>Serivice
-      <dd>{$service_status['service_description']}";
+        <dt>Serivice</dt>
+        <dd>{$service_status['service_description']}</dd>";
     }
 ?>
-    </dl>
-  </div>
+      </dl>
+    </div>
 
-  <h2>Command Options</h2>
-  <form class="form">
-  <ul class="edit rounded">
-    <li>Comment:
-    <input type="text" name="dt_comment" id="dt_<?php echo $id ?>_comment" value="scheduled down" /></li>
-    <li>End Time:
-    <select id="dt_<?php echo $id ?>_end_date">
+    <h2>Command Options</h2>
+    <form
+          id="dt_<?php echo $id ?>_form"
+          data-dt_host="<?php echo $host ?>"
+          data-dt_service="<?php echo isset($service_id) ? $service_status['service_description'] : '' ?>"
+    >
+      <div data-role="fieldcontain">
+        <label for="dt_<?php echo $id ?>_comment">Comment:</label>
+        <input type="text" name="dt_<?php echo $id ?>_comment" id="dt_<?php echo $id ?>_comment" value="schedule down" />
+      </div>
+
+      <div data-role="fieldcontain">
+        <label for="dt_<?php echo $id ?>_end_date">End Time:</label>
+        <select id="dt_<?php echo $id ?>_end_date">
 <?php
 for ($i=0, $t = time(); $i < 7; $t += 86400, $i++) {
-    printf("%d %d\n", $i, $t);
     printf("      <option>%s</option>\n", strftime("%Y-%m-%d", $t));
 }
 ?>
-    </select>
-    <select id="dt_<?php echo $id ?>_end_time">
+        </select>
+        <select id="dt_<?php echo $id ?>_end_time">
 <?php
 $now_h = strftime("%H");
 $now_m = strftime("%M");
@@ -359,40 +464,20 @@ for ($h=0; $h<24; $h++) {
     }
 }
 ?>
-    </select>
-    </li>
-  </ul>
-  <a href="#" id="submit_dt_<?php echo $id ?>" class="submit whiteButton" style="margin: 10px;color:rgba(0,0,0,.9)">Commit</a>
-  <form>
-  <div id="result_dt_<?php echo $id ?>" class="info">&nbsp;</div>
-
+        </select>
+      </div>
+      <a href="#"
+         class="submitDowntimeButton"
+         data-role="button"
+         data-theme="e"
+         data-dt_id="<?php echo $id ?>"
+      >Commit</a>
+    </form>
+    <div id="dt_<?php echo $id ?>_result" class="result">&nbsp;</div>
+  </div>
 </div>
-<script type="text/javascript" charset="utf-8">
-  $(function(){
-        $('#submit_dt_<?php echo $id ?>').bind(
-            'click',
-            function(e, info){
-                $('#result_dt_<?php echo $id ?>').html(
-                    $('<p>Processing...</p>').
-                    load(
-                        'index.php', {
-                             page:     "schedule_downtime"
 <?php
-                                printf(",host: \"%s\"\n", $host);
-                                if (isset($service_id)) {
-                                    printf(",service: \"%s\"\n", $service_status["service_description"]);
-                                }
-?>
-                            ,comment:  $('#dt_<?php echo $id ?>_comment').val()
-                            ,end_date: $('#dt_<?php echo $id ?>_end_date').val()
-                            ,end_time: $('#dt_<?php echo $id ?>_end_time').val()
-                        }
-                    ));
-
-            });
-    });
-</script>
-<?php
+end_html();
 }
 ?>
 
@@ -400,7 +485,7 @@ for ($h=0; $h<24; $h++) {
 function command_schedule_downtime($global_stats, $status) {
     global $COMMAND_FILE;
 
-    if (! isset($_REQUEST["service"])) {
+    if (! isset($_REQUEST["service"]) || $_REQUEST["service"] === "" ) {
         $command_elm = array("SCHEDULE_HOST_DOWNTIME",
                              $_REQUEST["host"],
             );
@@ -426,48 +511,22 @@ function command_schedule_downtime($global_stats, $status) {
                                    ));
     $command = sprintf("[%lu] ",time()).implode(";", $command_elm);
 
+    header("Content-Type: application/json; charset=UTF-8");
     $fh = @fopen($COMMAND_FILE, "w");
     if (!$fh) {
         trigger_error("unable to open file ($COMMAND_FILE): $php_errormsg", E_USER_WARNING);
-        print "<p>Error</p>";
+        header("HTTP/1.0 500 Internal Server Error");
+        print "{\"result\":false}\n";
         return;
     };
     fwrite($fh, $command."\n");
     fclose($fh);
 
-    print "<p>Done<p>";
+    print "{\"result\":true}\n";
 }
 ?>
 
 <?php
-
-# info => {
-# },
-# program => {
-# },
-# hosts => {
-#   HOST_ID => {
-#     host_name => HOSTNAME,
-#     current_state => S,
-#     ...,
-#     services => {
-#       SERVICE_ID => {
-#         host_name => HOSTNAME,
-#         service_description => SERVICE_DESCRIPTION,
-#         current_state => S,
-#       },
-#       ping_XXX => {
-#         host_name => HOSTNAME,
-#         service_description => "ping",
-#         current_state => S,
-#       },
-#       ...
-#     },
-#   },
-#   HOSTNAME2 => {
-#   ...
-#   },
-# },
 function parse_status_file($status_file) {
     $status;
 
@@ -524,6 +583,8 @@ function parse_status_file($status_file) {
                 break;
             case "servicecomment":
             case "servicedowntime":
+            case "hostcomment":
+            case "hostdowntime":
                 # ignore
                 break;
             default:
@@ -552,6 +613,7 @@ function parse_status_file($status_file) {
                 case "notifications_enabled":
                 case "check_command":
                 case "plugin_output":
+                case "scheduled_downtime_depth":
                     $block[$k] = $v;
                     break;
                 }
@@ -565,12 +627,15 @@ function parse_status_file($status_file) {
                 case "last_check":
                 case "notifications_enabled":
                 case "last_update":
+                case "scheduled_downtime_depth":
                     $block[$k] = $v;
                     break;
                 }
                 break;
             case "servicecomment":
             case "servicedowntime":
+            case "hostcomment":
+            case "hostdowntime":
                 # ignore
                 break;
             default:
@@ -683,7 +748,7 @@ function class_by_state($value) {
 }
 
 function service_state_of($services) {
-    $state = 0;
+    $state = STATE_OK;
     foreach ($services as $service_id => $prop) {
         if (isset($prop['current_state'])) {
             if ($prop['current_state'] > $state) {
