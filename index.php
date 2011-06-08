@@ -1,4 +1,13 @@
 <?php
+/*
+  "Teeny Nagios"
+
+  Teeny web interface for Nagios with smartphone(iPhone, Android)
+
+  https://github.com/hirose31/teeny-nagios
+
+ */
+
 ini_set("track_errors", TRUE);
 ini_set("date.timezone", "Asia/Tokyo");
 
