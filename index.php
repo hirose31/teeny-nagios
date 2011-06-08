@@ -741,6 +741,9 @@ function class_by_state($value) {
     case STATE_CRITICAL:
         return "critical";
         break;
+    case STATE_UNKNOWN:
+        return "critical";
+        break;
     default:
         return "unknown";
         break;
