@@ -215,7 +215,7 @@ function view_main($global_stats, $status) {
 <!-- home ============================================================ -->
 <div data-role="page" id="home" data-theme="a">
   <div data-role="header" data-backbtn="false">
-    <h1>Pocket Nagios</h1>
+    <h1>Teeny Nagios</h1>
     <a href="#about" data-icon="info" data-iconpos="notext" data-rel="dialog" data-transition="flip" class="ui-btn-right">About</a>
   </div>
 
