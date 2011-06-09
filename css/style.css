@@ -1,0 +1,22 @@
+/* clearfix */
+  .screenshots:after
+{
+  height: 0;
+  visibility: hidden;
+  content: ".";
+  display: block;
+  clear: both;
+}
+
+.screenshots {
+    width: 80%;
+}
+
+.screenshots p {
+    margin: 0 1em 2em 0;
+    float: left;
+}
+
+.screenshots p img {
+    border: #000 1px solid;
+}
