@@ -1,46 +1,29 @@
-[% module %]
+Teeny Nagios
 ========================
 
 ABSTRACT
 ------------------------
 
-This is Perl module [% module %].
-fixme
+Teeny web interface for Nagios with smartphone(iPhone, Android).
 
+* https://github.com/hirose31/teeny-nagios
 
 INSTALLATION
 ------------------------
 
-[% module %] installation is straightforward. If your CPAN shell is set up,
-you should just be able to do
+* requires
+  * Nagios 3.1, 3.2
+  * PHP
 
-    % cpan [% module %]
-
-Download it, unpack it, then build it as per the usual:
-
-    % perl Makefile.PL
-    % make && make test
-
-Then install it:
-
-    % make install
-
-
-DOCUMENTATION
-------------------------
-
-[% module %] documentation is available as in POD. So you can do:
-
-    % perldoc [% module %]
-
-to read the documentation online with your favorite pager.
+    $ vi index.php
+      specify $STATUS_FILE and $COMMAND_FILE for your environment and check
+      permission of $COMMAND_FILE to write by executive user of PHP.
+    $ cp index.php nagios.png YOUR_WEB_ROOT/teeny/
 
 
 COPYRIGHT & LICENSE
 ------------------------
 
-Copyright [% config.author %]
+Copyright HIROSE Masaaki
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
+Apache License, Version 2.0
