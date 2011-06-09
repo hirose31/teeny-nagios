@@ -16,10 +16,13 @@ INSTALLATION
   * PHP
 
 <pre>
-    $ vi index.php
-      specify $STATUS_FILE and $COMMAND_FILE for your environment and check
-      permission of $COMMAND_FILE to write by executive user of PHP.
-    $ cp index.php nagios.png YOUR_WEB_ROOT/teeny/
+$ vi index.php
+  specify $STATUS_FILE and $COMMAND_FILE for your environment and check
+  permission of $COMMAND_FILE to write by executive user of PHP.
+$ cp index.php nagios.png YOUR_WEB_ROOT/teeny/
+
+and access http://YOUR_NAGIOS_SITE/teeny/
+enjyo!
 </pre>
 
 COPYRIGHT & LICENSE
