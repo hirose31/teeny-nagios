@@ -6,7 +6,10 @@ ABSTRACT
 
 Teeny web interface for Nagios with smartphone(iPhone, Android).
 
-* https://github.com/hirose31/teeny-nagios
+* project home
+  * http://hirose31.github.com/teeny-nagios/
+* repository
+  * https://github.com/hirose31/teeny-nagios
 
 INSTALLATION
 ------------------------
