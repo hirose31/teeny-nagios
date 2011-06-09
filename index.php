@@ -11,8 +11,8 @@
 ini_set("track_errors", TRUE);
 ini_set("date.timezone", "Asia/Tokyo");
 
-$STATUS_FILE  = "/var/log/nagios/status.dat";
-$COMMAND_FILE = "/var/log/nagios/rw/nagios.cmd";
+$STATUS_FILE  = getenv("TN_STATUS_FILE")  ? getenv("TN_STATUS_FILE")  : "/var/log/nagios/status.dat";
+$COMMAND_FILE = getenv("TN_COMMAND_FILE") ? getenv("TN_COMMAND_FILE") : "/var/log/nagios/rw/nagios.cmd";
 
 define("HOST_UP",          0);
 define("HOST_DOWN",        1);
@@ -231,7 +231,7 @@ function view_main($global_stats, $status) {
   <div data-role="content">
     <h2>Current Status</h2>
     <ul data-role="listview" data-inset="true" data-theme="a">
-      <li><a href="#hosts" id="loadHosts">Hosts</a><span class="ui-li-count">36</span></li>
+      <li><a href="#hosts" id="loadHosts">Hosts</a><span class="ui-li-count"><?php echo count($status["hosts"]) ?></span></li>
     </ul>
 
     <h2>Overview</h2>
