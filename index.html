@@ -1,1 +1,94 @@
-ttt
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title></title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<h1><a name="top">Teeny Nagios</a></h1>
+
+<h2><a name="abstract">Abstract</a></h2>
+
+<p>
+Teeny web interface for Nagios with smartphone(iPhone, Android).
+</p>
+
+<dl>
+  <dt>project home</dt>
+  <dd><a href="http://hirose31.github.com/teeny-nagios/">http://hirose31.github.com/teeny-nagios/</a></dd>
+  <dt>repository</dt>
+  <dd><a href="https://github.com/hirose31/teeny-nagios">https://github.com/hirose31/teeny-nagios</a></dd>
+</dl>
+
+<h2><a name="screenshots">Screenshots</a></h2>
+
+<div class="screenshots">
+  <p>
+  <img src="img/tn_home.png" alt="top" />
+  <br />
+  home<br />
+  grance overview
+  </p>
+
+  <p>
+  <img src="img/tn_hosts.png" alt="hosts" />
+  <br />
+  hosts<br />
+  list of monitored hosts<br />
+  yellow is warning, red is critical
+  </p>
+
+  <p>
+  <img src="img/tn_host.png" alt="host" />
+  <br />
+  host<br />
+  list of services of this host
+  </p>
+
+  <p>
+  <img src="img/tn_services.png" alt="services" />
+  <br />
+  services<br />
+  detail of service
+  </p>
+
+  <p>
+  <img src="img/tn_downtime.png" alt="downtime" />
+  <br />
+  downtime<br />
+  you can submit schedule downtime by host or by service
+  </p>
+</div>
+
+<h2><a name="installation">Installation</a></h2>
+
+<h3><a name="requires">Requires</a></h3>
+
+<ul>
+  <li>Nagios 3.1, 3.2</li>
+  <li>PHP</li>
+</ul>
+
+<pre>
+$ vi index.php
+  specify $STATUS_FILE and $COMMAND_FILE for your environment and check
+  permission of $COMMAND_FILE to write by executive user of PHP.
+$ cp index.php nagios.png YOUR_WEB_ROOT/teeny/
+
+and access http://YOUR_NAGIOS_SITE/teeny/
+enjoy!
+</pre>
+
+<h2><a name="">COPYRIGHT & LICENSE</a></h2>
+
+<p>
+Copyright HIROSE Masaaki
+<br />
+Apache License, Version 2.0
+</p>
+
+</body>
+</html>
+
