@@ -280,7 +280,8 @@ function view_main($global_stats, $status) {
 foreach ($status["hosts"] as $host_id => $host_status) {
     $host = $host_status["host_name"];
     $class = class_by_state( service_state_of($host_status['services']) );
-    print("    <li class=\"$class\"><a href=\"#$host_id\">$host</a></li>\n");
+    $count = count($host_status['services']);
+    print("    <li class=\"$class\"><a href=\"#$host_id\">$host</a><span class=\"ui-li-count\">$count</span></li>\n");
 }
 ?>
     </ul>
