@@ -8,11 +8,14 @@
 
  */
 
+$STATUS_FILE  = getenv("TN_STATUS_FILE")  ? getenv("TN_STATUS_FILE")  : "/var/log/nagios/status.dat";
+$COMMAND_FILE = getenv("TN_COMMAND_FILE") ? getenv("TN_COMMAND_FILE") : "/var/log/nagios/rw/nagios.cmd";
+
+
 ini_set("track_errors", TRUE);
 ini_set("date.timezone", "Asia/Tokyo");
 
-$STATUS_FILE  = getenv("TN_STATUS_FILE")  ? getenv("TN_STATUS_FILE")  : "/var/log/nagios/status.dat";
-$COMMAND_FILE = getenv("TN_COMMAND_FILE") ? getenv("TN_COMMAND_FILE") : "/var/log/nagios/rw/nagios.cmd";
+define("TN_VERSION", "1.0");
 
 define("HOST_UP",          0);
 define("HOST_DOWN",        1);
@@ -103,9 +106,16 @@ div.rounded ul li, div.rounded dl dt, div.rounded dl dd {
     background: transparent;
 }
 
+dt {
+    font-weight: bold;
+}
+
+dt:nth-child(n+2) {
+    margin-top: .5em;
+}
+
 div.rounded dl dt {
     font-size: 120%;
-    font-weight: bold;
 }
 
 div.result {
@@ -258,11 +268,16 @@ function view_main($global_stats, $status) {
   </div>
 
   <div data-role="content">
-    <h2>Teeny Nagios</h2>
+    <h2>Teeny Nagios v<?php echo TN_VERSION ?></h2>
     <p>Teeny web interface for Nagios with smartphone(iPhone, Android)</p>
-    <p>
-    <a href="https://github.com/hirose31/teeny-nagios" rel="external">https://github.com/hirose31/teeny-nagios</a>
-    </p>
+
+    <dl>
+      <dt>project home</dt>
+      <dd><a href="http://hirose31.github.com/teeny-nagios/" rel="external">http://hirose31.github.com/teeny-nagios/</a></dd>
+
+      <dt>repository</dt>
+      <dd><a href="https://github.com/hirose31/teeny-nagios" rel="external">https://github.com/hirose31/teeny-nagios</a></dd>
+    </dl>
   </div>
 </div>
 
